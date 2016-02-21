@@ -1,58 +1,78 @@
 if (window.jQuery === undefined)
-    throw new Error('The jQuery library is not loaded. The October CMS framework cannot be initialized.');
+    throw new Error('The jQuery library is not loaded. The WebSockets plugin cannot be initialized.');
+
+if (window.WebSocket === undefined)
+    throw new Error('Your browser does not support WebSockets API. The WebSockets plugin cannot be initialized.');
 
 +function ($) { "use strict";
-    var scriptTags = document.getElementsByTagName('script');
-    var scriptTag = scriptTags[scriptTags.length - 1];
-    var scriptSrc = scriptTag.src;
-    var queryString = scriptSrc.split('?')[1];
-    var query = queryString.split('&');
-    var props = {};
+    var
+               NAMESPACE = 'websocket',
+            TRIGGER_ATTR = NAMESPACE + '-event',
+           LISTENER_ATTR = NAMESPACE + '-on',
+        TRIGGER_SELECTOR = '[data-' + TRIGGER_ATTR + ']';
 
-    for (var i = 0, l = query.length; i < l; i++) {
-        var keyVal = query[i].split('=');
-        props[keyVal[0]] = decodeURIComponent(keyVal[1]);
+    var properties = queryStringToObject(getQueryString(), true),
+         websocket = null;
+
+    function init() {
+        websocket = new WebSocket(properties.uri);
+        websocket.onmessage = onMessage;
     }
 
-    var ws = new WebSocket(props.uri);
+    function onMessage(message) {
+        var event = JSON.parse(message.data);
 
-    ws.onmessage = function (msg) {
-        var data = JSON.parse(msg.data);
+        if (!event.name) {
+            throw new Error('Invalid event name.');
+        }
 
-        $(document).trigger(jQuery.Event('ws:'+data.event, data));
+        var attrName = LISTENER_ATTR + event.name,
+            selector = '[data-' + attrName + ']';
 
-        $('[data-ws-on'+data.event+']').each(function () {
-            eval('(function(data) {'+$(this).data('ws-on'+data.event)+'}.call(this, data))');
+        $(document).trigger(jQuery.Event(NAMESPACE + ':' + event.name, {payload: event.payload}));
+
+        $(selector).each(function () {
+            eval('(function(event) {' + $(this).data(attrName) + '}.call(this, event))');
         });
-    };
-
-    $.fn.wsSend = function () {
-        var $this = $(this);
-        var form  = $this.closest('form');
-        var data  = form.serializeObject();
-
-        data.event = $this.data('ws-send');
-        ws.send(JSON.stringify(data));
     }
 
-    $(document).on('submit', '[data-ws-send]', function documentOnsubmit () {
-        $(this).wsSend();
-        return false;
+    function websocketSend() {
+        var $el   = $(this),
+            $form = $el.closest('form'),
+            data  = queryStringToObject($form.serialize()),
+            eventName = $el.data(TRIGGER_ATTR);
+
+        var event = {
+            name: eventName,
+            payload: data
+        };
+
+        websocket.send(JSON.stringify(event));
+    }
+
+    $.fn.websocketSend = websocketSend;
+
+    $(document).on('submit', TRIGGER_SELECTOR, function (event) {
+        $(this).websocketSend();
+        event.preventDefault();
     });
 
-    $.fn.serializeObject = function() {
-        var o = {};
-        var a = this.serializeArray();
-        $.each(a, function() {
-            if (o[this.name] !== undefined) {
-                if (!o[this.name].push) {
-                    o[this.name] = [o[this.name]];
-                }
-                o[this.name].push(this.value || '');
-            } else {
-                o[this.name] = this.value || '';
-            }
-        });
-        return o;
-    };
+    function queryStringToObject(queryString, decode) {
+        var query = queryString.split('&'),
+              obj = {};
+
+        for (var i = 0, l = query.length; i < l; i++) {
+            var keyVal = query[i].split('=');
+            obj[keyVal[0]] = decode ? decodeURIComponent(keyVal[1]) : keyVal[1];
+        }
+
+        return obj;
+    }
+
+    function getQueryString() {
+        var scriptTags = document.getElementsByTagName('script');
+        return scriptTags[scriptTags.length - 1].src.split('?')[1];
+    }
+
+    init();
 }(jQuery);

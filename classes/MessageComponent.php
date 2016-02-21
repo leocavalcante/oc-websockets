@@ -17,10 +17,16 @@ class MessageComponent implements MessageComponentInterface
         $this->peers->attach($conn);
     }
 
-    public function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(ConnectionInterface $from, $message)
     {
+        $event = json_decode($message);
+
         foreach ($this->peers as $peer) {
-            $peer->send($msg);
+            if ($peer == $from && !empty($event->broadcast)) {
+                continue;
+            }
+
+            $peer->send($message);
         }
     }
 
