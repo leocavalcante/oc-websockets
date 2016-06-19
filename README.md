@@ -1,7 +1,11 @@
 First, you need to install [Ratchet](http://socketo.me/)
 
 ~~~
-php require cboden/ratchet
+composer require cboden/ratchet
+~~~
+or
+~~~
+php ~/composer.phar require cboden/ratchet
 ~~~
 
 Then you can start the WebSocket server:
@@ -9,6 +13,7 @@ Then you can start the WebSocket server:
 ~~~
 php artisan websockets:run
 ~~~
+
 
 You can specify a `--port` if you want to, default is **8080**.
 
