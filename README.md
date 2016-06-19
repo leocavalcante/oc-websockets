@@ -14,6 +14,7 @@ Then you can start the WebSocket server:
 php artisan websockets:run
 ~~~
 
+
 You can specify a `--port` if you want to, default is **8080**.
 
 Then add the client component on your page/layout. You can set an `uri` property if you are running on a different port. Default is `ws://localhost:8080/`.
