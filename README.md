@@ -50,10 +50,12 @@ url = "websockets"
     <body>
         <ul data-websocket-onmessage="$(this).append('<li>'+event.payload.text+'</li>')"></ul>
             <form role="form" data-websocket-event="message">
-            <input type="text" name="text">
-            <button type="submit">Send</button>
-        </form>
-            <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+                <input type="text" name="text">
+                <button type="submit">Send</button>
+            </form>
+        </ul>
+        
+        <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
         {% scripts %}
     </body>
 </html>
