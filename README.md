@@ -1,14 +1,10 @@
-First, you need to install [Ratchet](http://socketo.me/)
+# October WebSockets
 
-```shell
-composer require cboden/ratchet
-```
-or
-```shell
-php ~/composer.phar require cboden/ratchet
-```
+Add real-time features to your OctoberCMS project.
 
-Then you can start the WebSocket server:
+## Usage
+
+### Start the server
 
 ```shell
 php artisan websockets:run
@@ -16,11 +12,16 @@ php artisan websockets:run
 
 You can specify a `--port` if you want to, default is `8080`.
 
-Then add the client component on your page/layout. You can set an `uri` property if you are running on a different port. Default is `ws://localhost:8080/`.
+### Attach the component
+
+Add the client component to your page/layout. You can set an `uri` property if you are running on a different port. Default is `ws://localhost:8080/`.
 
 ```ini
 [websocket]
+==
 ```
+
+### The API
 
 It uses an AJAX framework-like API, is familiar for OctoberCMS developers
 
