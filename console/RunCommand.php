@@ -24,6 +24,7 @@ class RunCommand extends Command
     public function handle()
     {
         $port = $this->option('port');
+        $this->info("Server listening on $port");
         ServerFactory::create($port)->run();
     }
 
