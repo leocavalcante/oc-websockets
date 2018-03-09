@@ -21,7 +21,7 @@ class RunCommand extends Command
      * Execute the console command.
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         $port = $this->option('port');
         ServerFactory::create($port)->run();
